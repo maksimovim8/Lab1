@@ -3,19 +3,33 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Lab1.Models;
+using Lab1.Services;
 
 namespace Lab1.ViewModels;
 
 public class ExpensesViewModel : INotifyPropertyChanged
 {
+    private readonly CurrencyConverter _currencyConverter;
+    private readonly CurrencyRateService _currencyRateService;
+
     private decimal _totalAmount;
+
+    private decimal _usdRate;
+    private decimal _eurRate;
+
+    private string _rateDate = "Курс не завантажено";
 
     private string _amount = string.Empty;
     private string _category = string.Empty;
     private string _description = string.Empty;
+
+    private string _selectedCurrency = "UAH";
+
     private DateTime _currentDate = DateTime.Today;
 
     public ObservableCollection<Expense> Expenses { get; set; }
+
+    public ObservableCollection<string> Currencies { get; set; }
 
     public string Amount
     {
@@ -69,6 +83,19 @@ public class ExpensesViewModel : INotifyPropertyChanged
         }
     }
 
+    public string SelectedCurrency
+    {
+        get => _selectedCurrency;
+        set
+        {
+            if (_selectedCurrency != value)
+            {
+                _selectedCurrency = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public decimal TotalAmount
     {
         get => _totalAmount;
@@ -82,16 +109,89 @@ public class ExpensesViewModel : INotifyPropertyChanged
         }
     }
 
+    public decimal UsdRate
+    {
+        get => _usdRate;
+        private set
+        {
+            if (_usdRate != value)
+            {
+                _usdRate = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public decimal EurRate
+    {
+        get => _eurRate;
+        private set
+        {
+            if (_eurRate != value)
+            {
+                _eurRate = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public string RateDate
+    {
+        get => _rateDate;
+        private set
+        {
+            if (_rateDate != value)
+            {
+                _rateDate = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public ICommand AddExpenseCommand { get; }
 
     public ICommand DeleteExpenseCommand { get; }
 
     public ExpensesViewModel()
     {
+        _currencyConverter = new CurrencyConverter();
+        _currencyRateService = new CurrencyRateService();
+
         Expenses = new ObservableCollection<Expense>();
+
+        Currencies = new ObservableCollection<string>
+        {
+            "UAH",
+            "USD",
+            "EUR"
+        };
 
         AddExpenseCommand = new Command(AddExpense);
         DeleteExpenseCommand = new Command<Expense>(DeleteExpense);
+    }
+
+    public async Task LoadRatesAsync()
+    {
+        try
+        {
+            var rates = await _currencyRateService.GetRatesAsync();
+
+            var usd = rates.FirstOrDefault(rate => rate.Currency == "USD");
+            var eur = rates.FirstOrDefault(rate => rate.Currency == "EUR");
+
+            if (usd != null)
+                UsdRate = usd.Rate;
+
+            if (eur != null)
+                EurRate = eur.Rate;
+
+            if (usd != null)
+                RateDate = usd.Date;
+        }
+        catch
+        {
+            RateDate = "Не вдалося завантажити курс";
+        }
     }
 
     private void AddExpense()
@@ -105,13 +205,24 @@ public class ExpensesViewModel : INotifyPropertyChanged
         if (string.IsNullOrWhiteSpace(Category))
             return;
 
+        decimal amountInUah = _currencyConverter.ConvertToUah(
+            amount,
+            SelectedCurrency,
+            UsdRate,
+            EurRate);
+
         var expense = new Expense
         {
             Id = Expenses.Count + 1,
-            Amount = amount,
+
+            Amount = amountInUah,
+
             Category = Category,
+
             Description = Description,
+
             Date = CurrentDate,
+
             Currency = "UAH"
         };
 
@@ -142,6 +253,9 @@ public class ExpensesViewModel : INotifyPropertyChanged
         Amount = string.Empty;
         Category = string.Empty;
         Description = string.Empty;
+
+        SelectedCurrency = "UAH";
+
         CurrentDate = DateTime.Today;
     }
 

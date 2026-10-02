@@ -15,6 +15,33 @@
                 FontAttributes="Bold" />
 
             <Frame
+    Padding="15"
+    CornerRadius="12">
+
+                <VerticalStackLayout Spacing="8">
+
+                    <Label
+            Text="Курси НБУ"
+            FontSize="18"
+            FontAttributes="Bold" />
+
+                    <Label
+            Text="{Binding UsdRate, StringFormat='1 USD = {0:F2} UAH'}"
+            FontSize="16" />
+
+                    <Label
+            Text="{Binding EurRate, StringFormat='1 EUR = {0:F2} UAH'}"
+            FontSize="16" />
+
+                    <Label
+            Text="{Binding RateDate, StringFormat='Дата курсу: {0}'}"
+            FontSize="12" />
+
+                </VerticalStackLayout>
+
+            </Frame>
+
+            <Frame
                 Padding="15"
                 CornerRadius="12">
 
@@ -38,25 +65,35 @@
                 FontSize="20"
                 FontAttributes="Bold" />
 
-            <Entry
-            Placeholder="Сума"
-            Keyboard="Numeric"
-            Text="{Binding Amount}" />
+            <Label
+    Text="Додати витрату"
+    FontSize="20"
+    FontAttributes="Bold" />
 
             <Entry
-            Placeholder="Категорія"
-            Text="{Binding Category}" />
+    Placeholder="Сума"
+    Keyboard="Numeric"
+    Text="{Binding Amount}" />
+
+            <Picker
+    Title="Валюта"
+    ItemsSource="{Binding Currencies}"
+    SelectedItem="{Binding SelectedCurrency}" />
 
             <Entry
-            Placeholder="Опис"
-            Text="{Binding Description}" />
+    Placeholder="Категорія"
+    Text="{Binding Category}" />
+
+            <Entry
+    Placeholder="Опис"
+    Text="{Binding Description}" />
 
             <DatePicker
-            Date="{Binding CurrentDate}" />
+    Date="{Binding CurrentDate}" />
 
             <Button
-                Text="Додати витрату"
-                Command="{Binding AddExpenseCommand}" />
+    Text="Додати витрату"
+    Command="{Binding AddExpenseCommand}" />
 
             <Label
                 Text="Історія витрат"
