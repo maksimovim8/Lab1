@@ -39,21 +39,20 @@
                 FontAttributes="Bold" />
 
             <Entry
-                x:Name="AmountEntry"
-                Placeholder="Сума"
-                Keyboard="Numeric" />
+            Placeholder="Сума"
+            Keyboard="Numeric"
+            Text="{Binding Amount}" />
 
             <Entry
-                x:Name="CategoryEntry"
-                Placeholder="Категорія" />
+            Placeholder="Категорія"
+            Text="{Binding Category}" />
 
             <Entry
-                x:Name="DescriptionEntry"
-                Placeholder="Опис" />
+            Placeholder="Опис"
+            Text="{Binding Description}" />
 
             <DatePicker
-                x:Name="DatePicker"
-                Date="{Binding CurrentDate}" />
+            Date="{Binding CurrentDate}" />
 
             <Button
                 Text="Додати витрату"
