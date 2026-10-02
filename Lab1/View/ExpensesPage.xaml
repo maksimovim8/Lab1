@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Lab1.Views.ExpensesPage"
+    Title="Трекер витрат">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label
+                Text="Мої витрати"
+                FontSize="28"
+                FontAttributes="Bold" />
+
+            <Frame
+                Padding="15"
+                CornerRadius="12">
+
+                <VerticalStackLayout Spacing="5">
+
+                    <Label
+                        Text="Загальна сума"
+                        FontSize="14" />
+
+                    <Label
+                        Text="{Binding TotalAmount, StringFormat='{0:F2} UAH'}"
+                        FontSize="26"
+                        FontAttributes="Bold" />
+
+                </VerticalStackLayout>
+
+            </Frame>
+
+            <Label
+                Text="Додати витрату"
+                FontSize="20"
+                FontAttributes="Bold" />
+
+            <Entry
+                x:Name="AmountEntry"
+                Placeholder="Сума"
+                Keyboard="Numeric" />
+
+            <Entry
+                x:Name="CategoryEntry"
+                Placeholder="Категорія" />
+
+            <Entry
+                x:Name="DescriptionEntry"
+                Placeholder="Опис" />
+
+            <DatePicker
+                x:Name="DatePicker"
+                Date="{Binding CurrentDate}" />
+
+            <Button
+                Text="Додати витрату"
+                Command="{Binding AddExpenseCommand}" />
+
+            <Label
+                Text="Історія витрат"
+                FontSize="20"
+                FontAttributes="Bold"
+                Margin="0,10,0,0" />
+
+            <CollectionView
+                ItemsSource="{Binding Expenses}"
+                SelectionMode="None">
+
+                <CollectionView.ItemTemplate>
+
+                    <DataTemplate>
+
+                        <Frame
+                            Padding="12"
+                            Margin="0,5"
+                            CornerRadius="10">
+
+                            <Grid
+                                ColumnDefinitions="*,Auto"
+                                RowDefinitions="Auto,Auto,Auto">
+
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Text="{Binding Category}"
+                                    FontAttributes="Bold"
+                                    FontSize="18" />
+
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Text="{Binding Description}"
+                                    FontSize="14" />
+
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    Text="{Binding Date, StringFormat='{0:dd.MM.yyyy}'}"
+                                    FontSize="12" />
+
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Grid.RowSpan="2"
+                                    Text="{Binding Amount, StringFormat='{0:F2}'}"
+                                    FontAttributes="Bold"
+                                    FontSize="18"
+                                    VerticalOptions="Center" />
+
+                                <Button
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    Text="Видалити"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteExpenseCommand}"
+                                    CommandParameter="{Binding}" />
+
+                            </Grid>
+
+                        </Frame>
+
+                    </DataTemplate>
+
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
