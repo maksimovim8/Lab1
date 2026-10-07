@@ -13,4 +13,6 @@ public class Expense
     public DateTime Date { get; set; }
 
     public string Currency { get; set; } = "UAH";
+
+
 }

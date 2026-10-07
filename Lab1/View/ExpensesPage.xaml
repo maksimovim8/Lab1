@@ -61,11 +61,6 @@
             </Frame>
 
             <Label
-                Text="Додати витрату"
-                FontSize="20"
-                FontAttributes="Bold" />
-
-            <Label
     Text="Додати витрату"
     FontSize="20"
     FontAttributes="Bold" />
@@ -95,6 +90,10 @@
     Text="Додати витрату"
     Command="{Binding AddExpenseCommand}" />
 
+            <Button
+    Text="Переглянути статистику"
+    Command="{Binding OpenStatisticsCommand}" />
+
             <Label
                 Text="Історія витрат"
                 FontSize="20"
@@ -115,43 +114,50 @@
                             CornerRadius="10">
 
                             <Grid
-                                ColumnDefinitions="*,Auto"
-                                RowDefinitions="Auto,Auto,Auto">
+    ColumnDefinitions="*,Auto"
+    RowDefinitions="Auto,Auto,Auto,Auto">
 
                                 <Label
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Text="{Binding Category}"
-                                    FontAttributes="Bold"
-                                    FontSize="18" />
+        Grid.Row="0"
+        Grid.Column="0"
+        Text="{Binding Category}"
+        FontAttributes="Bold"
+        FontSize="18" />
 
                                 <Label
-                                    Grid.Row="1"
-                                    Grid.Column="0"
-                                    Text="{Binding Description}"
-                                    FontSize="14" />
+        Grid.Row="1"
+        Grid.Column="0"
+        Text="{Binding Description}"
+        FontSize="14" />
 
                                 <Label
-                                    Grid.Row="2"
-                                    Grid.Column="0"
-                                    Text="{Binding Date, StringFormat='{0:dd.MM.yyyy}'}"
-                                    FontSize="12" />
+        Grid.Row="2"
+        Grid.Column="0"
+        Text="{Binding Date, StringFormat='{0:dd.MM.yyyy}'}"
+        FontSize="12" />
 
                                 <Label
-                                    Grid.Row="0"
-                                    Grid.Column="1"
-                                    Grid.RowSpan="2"
-                                    Text="{Binding Amount, StringFormat='{0:F2}'}"
-                                    FontAttributes="Bold"
-                                    FontSize="18"
-                                    VerticalOptions="Center" />
+        Grid.Row="0"
+        Grid.Column="1"
+        Grid.RowSpan="2"
+        Text="{Binding Amount, StringFormat='{0:F2}'}"
+        FontAttributes="Bold"
+        FontSize="18"
+        VerticalOptions="Center" />
 
                                 <Button
-                                    Grid.Row="2"
-                                    Grid.Column="1"
-                                    Text="Видалити"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteExpenseCommand}"
-                                    CommandParameter="{Binding}" />
+        Grid.Row="3"
+        Grid.Column="0"
+        Text="Детальніше"
+        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenDetailsCommand}"
+        CommandParameter="{Binding}" />
+
+                                <Button
+        Grid.Row="3"
+        Grid.Column="1"
+        Text="Видалити"
+        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteExpenseCommand}"
+        CommandParameter="{Binding}" />
 
                             </Grid>
 
