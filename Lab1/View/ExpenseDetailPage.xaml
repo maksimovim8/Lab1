@@ -30,9 +30,10 @@
                 Text="Категорія"
                 FontSize="16" />
 
-            <Entry
-                Placeholder="Категорія"
-                Text="{Binding Category}" />
+            <Picker
+                Title="Оберіть категорію"
+                ItemsSource="{Binding Categories}"
+                SelectedItem="{Binding Category}" />
 
             <Label
                 Text="Опис"

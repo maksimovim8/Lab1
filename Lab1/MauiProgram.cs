@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Lab1.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Lab1
 {
@@ -14,9 +15,9 @@ namespace Lab1
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-
+            builder.Services.AddSingleton<CategoryService>();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

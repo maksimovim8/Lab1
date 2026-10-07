@@ -8,32 +8,32 @@ using Lab1.Services;
 namespace Lab1.ViewModels;
 
 public class ExpensesViewModel :
-    INotifyPropertyChanged,
-    IQueryAttributable
+    IQueryAttributable,
+    INotifyPropertyChanged
 {
+    private readonly CurrencyRateService _rateService;
     private readonly CurrencyConverter _currencyConverter;
-    private readonly CurrencyRateService _currencyRateService;
+    private readonly CategoryService _categoryService;
 
-    private decimal _totalAmount;
-
-    private decimal _usdRate;
-    private decimal _eurRate;
-
-    private string _rateDate = "Курс не завантажено";
-
-    private string _amount = string.Empty;
+    private decimal _amount;
     private string _category = string.Empty;
     private string _description = string.Empty;
+    private DateTime _currentDate = DateTime.Today;
 
     private string _selectedCurrency = "UAH";
 
-    private DateTime _currentDate = DateTime.Today;
+    private decimal _usdRate;
+    private decimal _eurRate;
+    private string _rateDate = string.Empty;
 
     public ObservableCollection<Expense> Expenses { get; set; }
 
     public ObservableCollection<string> Currencies { get; set; }
 
-    public string Amount
+    public ObservableCollection<string> Categories =>
+        _categoryService.Categories;
+
+    public decimal Amount
     {
         get => _amount;
         set
@@ -98,19 +98,6 @@ public class ExpensesViewModel :
         }
     }
 
-    public decimal TotalAmount
-    {
-        get => _totalAmount;
-        private set
-        {
-            if (_totalAmount != value)
-            {
-                _totalAmount = value;
-                OnPropertyChanged();
-            }
-        }
-    }
-
     public decimal UsdRate
     {
         get => _usdRate;
@@ -150,65 +137,143 @@ public class ExpensesViewModel :
         }
     }
 
+    public decimal TotalAmount =>
+        Expenses.Sum(expense => expense.Amount);
+
     public ICommand AddExpenseCommand { get; }
-
     public ICommand DeleteExpenseCommand { get; }
-
     public ICommand OpenDetailsCommand { get; }
-
     public ICommand OpenStatisticsCommand { get; }
+    public ICommand OpenCategoriesCommand { get; }
 
-    public ExpensesViewModel()
+    public ExpensesViewModel(CategoryService categoryService)
     {
-        _currencyConverter =
-            new CurrencyConverter();
+        _categoryService = categoryService;
 
-        _currencyRateService =
-            new CurrencyRateService();
+        _rateService = new CurrencyRateService();
+        _currencyConverter = new CurrencyConverter();
 
-        Expenses =
-            new ObservableCollection<Expense>();
+        Expenses = new ObservableCollection<Expense>();
 
-        Currencies =
-            new ObservableCollection<string>
-            {
-                "UAH",
-                "USD",
-                "EUR"
-            };
+        Currencies = new ObservableCollection<string>
+        {
+            "UAH",
+            "USD",
+            "EUR"
+        };
 
-        AddExpenseCommand =
-            new Command(AddExpense);
+        AddExpenseCommand = new Command(AddExpense);
 
         DeleteExpenseCommand =
             new Command<Expense>(DeleteExpense);
 
         OpenDetailsCommand =
             new Command<Expense>(
-                async expense =>
-                    await OpenDetailsAsync(expense));
+                async expense => await OpenDetailsAsync(expense));
 
         OpenStatisticsCommand =
             new Command(
-                async () =>
-                    await OpenStatisticsAsync());
+                async () => await OpenStatisticsAsync());
+
+        OpenCategoriesCommand =
+            new Command(
+                async () => await OpenCategoriesAsync());
+    }
+
+    private void AddExpense()
+    {
+        if (Amount <= 0)
+            return;
+
+        if (string.IsNullOrWhiteSpace(Category))
+            return;
+
+        // Конвертуємо вибрану валюту в гривні
+        decimal amountInUah = _currencyConverter.ConvertToUah(
+            Amount,
+            SelectedCurrency,
+            UsdRate,
+            EurRate);
+
+        var expense = new Expense
+        {
+            Id = Expenses.Count + 1,
+
+            // У витраті зберігаємо вже суму в гривнях
+            Amount = amountInUah,
+
+            Category = Category,
+            Description = Description,
+            Date = CurrentDate,
+
+            // Зберігаємо валюту, яку вибрав користувач
+            Currency = SelectedCurrency
+        };
+
+        Expenses.Add(expense);
+
+        Amount = 0;
+        Category = string.Empty;
+        Description = string.Empty;
+        CurrentDate = DateTime.Today;
+        SelectedCurrency = "UAH";
+
+        OnPropertyChanged(nameof(TotalAmount));
+    }
+
+    private void DeleteExpense(Expense expense)
+    {
+        if (expense == null)
+            return;
+
+        Expenses.Remove(expense);
+
+        OnPropertyChanged(nameof(TotalAmount));
+    }
+
+    private async Task OpenDetailsAsync(Expense expense)
+    {
+        if (expense == null)
+            return;
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "SelectedExpense", expense }
+        };
+
+        await Shell.Current.GoToAsync(
+            "expensedetail",
+            parameters);
+    }
+
+    private async Task OpenStatisticsAsync()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "Expenses", Expenses }
+        };
+
+        await Shell.Current.GoToAsync(
+            "statistics",
+            parameters);
+    }
+
+    private async Task OpenCategoriesAsync()
+    {
+        await Shell.Current.GoToAsync("categories");
     }
 
     public async Task LoadRatesAsync()
     {
         try
         {
-            var rates =
-                await _currencyRateService
-                    .GetRatesAsync();
+            var rates = await _rateService.GetRatesAsync();
 
-            var usd =
-                rates.FirstOrDefault(
-                    rate => rate.Currency == "USD");
+            var usd = rates.FirstOrDefault(
+                rate => rate.Currency == "USD");
 
-            var eur =
-                rates.FirstOrDefault(
-                    rate => rate.Currency == "EUR");
+            var eur = rates.FirstOrDefault(
+                rate => rate.Currency == "EUR");
 
             if (usd != null)
                 UsdRate = usd.Rate;
@@ -221,103 +286,10 @@ public class ExpensesViewModel :
         }
         catch
         {
-            RateDate =
-                "Не вдалося завантажити курс";
+            UsdRate = 0;
+            EurRate = 0;
+            RateDate = "Помилка завантаження";
         }
-    }
-
-    private void AddExpense()
-    {
-        if (!decimal.TryParse(
-                Amount,
-                out decimal amount))
-        {
-            return;
-        }
-
-        if (amount <= 0)
-            return;
-
-        if (string.IsNullOrWhiteSpace(Category))
-            return;
-
-        decimal amountInUah =
-            _currencyConverter.ConvertToUah(
-                amount,
-                SelectedCurrency,
-                UsdRate,
-                EurRate);
-
-        var expense =
-            new Expense
-            {
-                Id = Expenses.Count == 0
-                    ? 1
-                    : Expenses.Max(x => x.Id) + 1,
-
-                Amount = amountInUah,
-
-                Category = Category,
-
-                Description = Description,
-
-                Date = CurrentDate,
-
-                Currency = "UAH"
-            };
-
-        Expenses.Add(expense);
-
-        UpdateTotalAmount();
-
-        ClearForm();
-    }
-
-    private void DeleteExpense(
-        Expense? expense)
-    {
-        if (expense == null)
-            return;
-
-        Expenses.Remove(expense);
-
-        UpdateTotalAmount();
-    }
-
-    private async Task OpenDetailsAsync(
-        Expense? expense)
-    {
-        if (expense == null)
-            return;
-
-        var parameters =
-            new Dictionary<string, object>
-            {
-                {
-                    "SelectedExpense",
-                    expense
-                }
-            };
-
-        await Shell.Current.GoToAsync(
-            "expensedetail",
-            parameters);
-    }
-
-    private async Task OpenStatisticsAsync()
-    {
-        var parameters =
-            new Dictionary<string, object>
-            {
-                {
-                    "Expenses",
-                    Expenses
-                }
-            };
-
-        await Shell.Current.GoToAsync(
-            "statistics",
-            parameters);
     }
 
     public void ApplyQueryAttributes(
@@ -326,63 +298,31 @@ public class ExpensesViewModel :
         if (!query.TryGetValue(
                 "UpdatedExpense",
                 out var value))
-        {
             return;
-        }
 
         if (value is not Expense updatedExpense)
-        {
             return;
-        }
 
-        var existingExpense =
-            Expenses.FirstOrDefault(
-                expense =>
-                    expense.Id == updatedExpense.Id);
+        var existingExpense = Expenses.FirstOrDefault(
+            expense => expense.Id == updatedExpense.Id);
 
         if (existingExpense == null)
             return;
 
-        int index =
-            Expenses.IndexOf(existingExpense);
-
-        if (index == -1)
-            return;
+        var index = Expenses.IndexOf(existingExpense);
 
         Expenses[index] = updatedExpense;
 
-        UpdateTotalAmount();
+        OnPropertyChanged(nameof(TotalAmount));
     }
 
-    private void UpdateTotalAmount()
-    {
-        TotalAmount =
-            Expenses.Sum(
-                expense => expense.Amount);
-    }
-
-    private void ClearForm()
-    {
-        Amount = string.Empty;
-
-        Category = string.Empty;
-
-        Description = string.Empty;
-
-        SelectedCurrency = "UAH";
-
-        CurrentDate = DateTime.Today;
-    }
-
-    public event PropertyChangedEventHandler?
-        PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged(
         [CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(
             this,
-            new PropertyChangedEventArgs(
-                propertyName));
+            new PropertyChangedEventArgs(propertyName));
     }
 }

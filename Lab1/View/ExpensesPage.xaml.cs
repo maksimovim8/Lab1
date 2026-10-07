@@ -1,15 +1,17 @@
-﻿using Lab1.ViewModels;
+﻿using Lab1.Services;
+using Lab1.ViewModels;
+
 namespace Lab1.Views;
 
 public partial class ExpensesPage : ContentPage
 {
     private readonly ExpensesViewModel _viewModel;
 
-    public ExpensesPage()
+    public ExpensesPage(CategoryService categoryService)
     {
         InitializeComponent();
 
-        _viewModel = new ExpensesViewModel();
+        _viewModel = new ExpensesViewModel(categoryService);
 
         BindingContext = _viewModel;
     }
