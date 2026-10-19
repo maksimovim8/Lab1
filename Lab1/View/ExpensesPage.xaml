@@ -7,23 +7,28 @@
     Title="Трекер витрат">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <VerticalStackLayout Padding="20" Spacing="15"
+                             BackgroundColor="{AppThemeBinding Light=#D3D3D3, Dark=#000000}">
 
             <Label
                 Text="Мої витрати"
                 FontSize="28"
                 FontAttributes="Bold" />
-
+            <Button
+    Text="Налаштування"
+    Command="{Binding OpenSettingsCommand}" />
             <Frame
     Padding="15"
-    CornerRadius="12">
+    CornerRadius="12"
+    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                 <VerticalStackLayout Spacing="8">
 
                     <Label
             Text="Курси НБУ"
             FontSize="18"
-            FontAttributes="Bold" />
+            FontAttributes="Bold" 
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                     <Label
             Text="{Binding UsdRate, StringFormat='1 USD = {0:F2} UAH'}"
@@ -43,7 +48,8 @@
 
             <Frame
                 Padding="15"
-                CornerRadius="12">
+                CornerRadius="12"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                 <VerticalStackLayout Spacing="5">
 
@@ -59,8 +65,14 @@
                 </VerticalStackLayout>
 
             </Frame>
+            
+            <Frame
+     Padding="15"
+     CornerRadius="12"
+     BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
-            <Label
+                <VerticalStackLayout Spacing="5">
+                <Label
     Text="Додати витрату"
     FontSize="20"
     FontAttributes="Bold" />
@@ -70,7 +82,7 @@
     Keyboard="Numeric"
     Text="{Binding Amount}" />
 
-<Picker
+            <Picker
     Title="Валюта"
     ItemsSource="{Binding Currencies}"
     SelectedItem="{Binding SelectedCurrency}" />
@@ -91,14 +103,21 @@
     Text="Додати витрату"
     Command="{Binding AddExpenseCommand}" />
 
-            <Button
-    Text="Переглянути статистику"
-    Command="{Binding OpenStatisticsCommand}" />
-            
+
+                </VerticalStackLayout>
+
+            </Frame>
+
+
             <Button
     Text="Керувати категоріями"
     Command="{Binding OpenCategoriesCommand}" />
-            
+
+            <Button
+    Text="Переглянути статистику"
+    Command="{Binding OpenStatisticsCommand}" />
+
+
             <Label
                 Text="Історія витрат"
                 FontSize="20"
@@ -116,7 +135,8 @@
                         <Frame
                             Padding="12"
                             Margin="0,5"
-                            CornerRadius="10">
+                            CornerRadius="10"
+                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                             <Grid
     ColumnDefinitions="*,Auto"

@@ -19,7 +19,8 @@
 
             <Frame
                 Padding="15"
-                CornerRadius="12">
+                CornerRadius="12"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                 <VerticalStackLayout
                     Spacing="8">
@@ -31,7 +32,8 @@
                     <Label
                         Text="{Binding TotalAmount, StringFormat='{0:F2} UAH'}"
                         FontSize="26"
-                        FontAttributes="Bold" />
+                        FontAttributes="Bold" 
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                 </VerticalStackLayout>
 
@@ -47,13 +49,15 @@
                     Grid.Row="0"
                     Grid.Column="0"
                     Padding="15"
-                    CornerRadius="12">
+                    CornerRadius="12"
+                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                     <VerticalStackLayout>
 
                         <Label
                             Text="Кількість витрат"
-                            FontSize="13" />
+                            FontSize="13" 
+                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                         <Label
                             Text="{Binding ExpenseCount}"
@@ -68,7 +72,8 @@
                     Grid.Row="0"
                     Grid.Column="1"
                     Padding="15"
-                    CornerRadius="12">
+                    CornerRadius="12"
+                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                     <VerticalStackLayout>
 
@@ -79,7 +84,8 @@
                         <Label
                             Text="{Binding AverageAmount, StringFormat='{0:F2} UAH'}"
                             FontSize="20"
-                            FontAttributes="Bold" />
+                            FontAttributes="Bold" 
+                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                     </VerticalStackLayout>
 
@@ -89,7 +95,8 @@
                     Grid.Row="1"
                     Grid.Column="0"
                     Padding="15"
-                    CornerRadius="12">
+                    CornerRadius="12"
+                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                     <VerticalStackLayout>
 
@@ -100,7 +107,8 @@
                         <Label
                             Text="{Binding LargestExpense, StringFormat='{0:F2} UAH'}"
                             FontSize="20"
-                            FontAttributes="Bold" />
+                            FontAttributes="Bold" 
+                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                     </VerticalStackLayout>
 
@@ -110,7 +118,8 @@
                     Grid.Row="1"
                     Grid.Column="1"
                     Padding="15"
-                    CornerRadius="12">
+                    CornerRadius="12"
+                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                     <VerticalStackLayout>
 
@@ -121,7 +130,8 @@
                         <Label
                             Text="{Binding LargestCategory}"
                             FontSize="18"
-                            FontAttributes="Bold" />
+                            FontAttributes="Bold" 
+                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                     </VerticalStackLayout>
 
@@ -146,7 +156,8 @@
                         <Frame
                             Padding="12"
                             Margin="0,4"
-                            CornerRadius="10">
+                            CornerRadius="10"
+                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                             <Grid
                                 ColumnDefinitions="*,Auto"
@@ -157,7 +168,8 @@
                                     Grid.Column="0"
                                     Text="{Binding Category}"
                                     FontSize="17"
-                                    FontAttributes="Bold" />
+                                    FontAttributes="Bold" 
+                                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                                 <Label
                                     Grid.Row="1"

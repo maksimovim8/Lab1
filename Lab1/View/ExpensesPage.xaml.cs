@@ -1,4 +1,6 @@
-﻿using Lab1.Services;
+﻿
+using System.Diagnostics;
+using Lab1.Services;
 using Lab1.ViewModels;
 
 namespace Lab1.Views;
@@ -16,10 +18,21 @@ public partial class ExpensesPage : ContentPage
         BindingContext = _viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
 
-        await _viewModel.LoadRatesAsync();
+        Debug.WriteLine(
+            $"[Page Lifecycle] ExpensesPage OnAppearing: {DateTime.Now:HH:mm:ss}");
+
+        _viewModel.LoadCommand.Execute(null);
+    }
+
+    protected override void OnDisappearing()
+    {
+        Debug.WriteLine(
+            $"[Page Lifecycle] ExpensesPage OnDisappearing: {DateTime.Now:HH:mm:ss}");
+
+        base.OnDisappearing();
     }
 }

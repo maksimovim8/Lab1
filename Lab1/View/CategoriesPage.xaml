@@ -44,7 +44,8 @@
                         <Frame
                             Padding="12"
                             Margin="0,4"
-                            CornerRadius="10">
+                            CornerRadius="10"
+                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}">
 
                             <Grid
                                 ColumnDefinitions="*,Auto">
@@ -53,7 +54,8 @@
                                     Grid.Column="0"
                                     Text="{Binding .}"
                                     FontSize="17"
-                                    VerticalOptions="Center" />
+                                    VerticalOptions="Center" 
+                                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#424242}"/>
 
                                 <Button
                                     Grid.Column="1"

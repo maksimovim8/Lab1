@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Lab1.Views.SettingsPage"
+    Title="Налаштування">
+
+    <VerticalStackLayout
+        Padding="20"
+        Spacing="16">
+
+        <Label
+            Text="Налаштування застосунку"
+            FontSize="26"
+            FontAttributes="Bold" />
+
+        <Label
+            Text="Тема оформлення"
+            FontSize="18" />
+
+        <Picker
+            Title="Оберіть тему"
+            ItemsSource="{Binding Themes}"
+            SelectedItem="{Binding SelectedTheme}" />
+
+        <Label
+            Text="Вибрана тема зберігається автоматично."
+            FontSize="14" />
+
+        <Button
+            Text="Назад"
+            Clicked="OnBackClicked" />
+
+    </VerticalStackLayout>
+
+</ContentPage>

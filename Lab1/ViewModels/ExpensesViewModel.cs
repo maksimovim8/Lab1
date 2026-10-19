@@ -142,9 +142,11 @@ public class ExpensesViewModel :
 
     public ICommand AddExpenseCommand { get; }
     public ICommand DeleteExpenseCommand { get; }
+    public ICommand LoadCommand { get; }
     public ICommand OpenDetailsCommand { get; }
     public ICommand OpenStatisticsCommand { get; }
     public ICommand OpenCategoriesCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
 
     public ExpensesViewModel(CategoryService categoryService)
     {
@@ -162,6 +164,9 @@ public class ExpensesViewModel :
             "EUR"
         };
 
+        LoadCommand = 
+            new Command(
+                async () => await LoadRatesAsync());
         AddExpenseCommand = new Command(AddExpense);
 
         DeleteExpenseCommand =
@@ -178,6 +183,8 @@ public class ExpensesViewModel :
         OpenCategoriesCommand =
             new Command(
                 async () => await OpenCategoriesAsync());
+        OpenSettingsCommand = new Command(
+    async () => await Shell.Current.GoToAsync("settings"));
     }
 
     private void AddExpense()

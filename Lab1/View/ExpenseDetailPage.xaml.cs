@@ -1,15 +1,19 @@
-﻿using Lab1.Services;
+﻿
+using Lab1.Services;
 using Lab1.ViewModels;
 
 namespace Lab1.Views;
 
 public partial class ExpenseDetailPage : ContentPage
 {
-    public ExpenseDetailPage(CategoryService categoryService)
+    public ExpenseDetailPage(
+        CategoryService categoryService,
+        IAppStateService appStateService)
     {
         InitializeComponent();
 
-        BindingContext =
-            new ExpenseDetailViewModel(categoryService);
+        BindingContext = new ExpenseDetailViewModel(
+            categoryService,
+            appStateService);
     }
 }

@@ -16,6 +16,7 @@ namespace Lab1
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
             builder.Services.AddSingleton<CategoryService>();
+            builder.Services.AddSingleton<IAppStateService, AppStateService>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

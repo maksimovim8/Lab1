@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Lab1.Models;
@@ -11,8 +12,10 @@ public class ExpenseDetailViewModel :
     INotifyPropertyChanged
 {
     private readonly CategoryService _categoryService;
+    private readonly IAppStateService _appStateService;
 
     private Expense? _expense;
+    private bool _isRestoringState;
 
     private string _amount = string.Empty;
     private string _category = string.Empty;
@@ -31,6 +34,7 @@ public class ExpenseDetailViewModel :
             {
                 _amount = value;
                 OnPropertyChanged();
+                SaveDraftIfNeeded();
             }
         }
     }
@@ -44,6 +48,7 @@ public class ExpenseDetailViewModel :
             {
                 _category = value;
                 OnPropertyChanged();
+                SaveDraftIfNeeded();
             }
         }
     }
@@ -57,6 +62,7 @@ public class ExpenseDetailViewModel :
             {
                 _description = value;
                 OnPropertyChanged();
+                SaveDraftIfNeeded();
             }
         }
     }
@@ -70,6 +76,7 @@ public class ExpenseDetailViewModel :
             {
                 _date = value;
                 OnPropertyChanged();
+                SaveDraftIfNeeded();
             }
         }
     }
@@ -77,9 +84,12 @@ public class ExpenseDetailViewModel :
     public ICommand SaveCommand { get; }
     public ICommand GoBackCommand { get; }
 
-    public ExpenseDetailViewModel(CategoryService categoryService)
+    public ExpenseDetailViewModel(
+        CategoryService categoryService,
+        IAppStateService appStateService)
     {
         _categoryService = categoryService;
+        _appStateService = appStateService;
 
         SaveCommand = new Command(
             async () => await SaveAsync());
@@ -101,10 +111,50 @@ public class ExpenseDetailViewModel :
 
         _expense = expense;
 
-        Amount = expense.Amount.ToString("F2");
-        Category = expense.Category;
-        Description = expense.Description;
-        Date = expense.Date;
+        var draft = _appStateService.GetExpenseDraft();
+
+        _isRestoringState = true;
+
+        try
+        {
+            if (draft != null &&
+                draft.ExpenseId == expense.Id)
+            {
+                Amount = draft.Amount;
+                Category = draft.Category;
+                Description = draft.Description;
+                Date = draft.Date;
+            }
+            else
+            {
+                Amount = expense.Amount.ToString("F2");
+                Category = expense.Category;
+                Description = expense.Description;
+                Date = expense.Date;
+            }
+        }
+        finally
+        {
+            _isRestoringState = false;
+        }
+
+        SaveDraftIfNeeded();
+    }
+
+    private void SaveDraftIfNeeded()
+    {
+        if (_expense == null || _isRestoringState)
+            return;
+
+        _appStateService.SaveExpenseDraft(
+            new ExpenseEditState
+            {
+                ExpenseId = _expense.Id,
+                Amount = Amount,
+                Category = Category,
+                Description = Description,
+                Date = Date
+            });
     }
 
     private async Task SaveAsync()
@@ -138,6 +188,8 @@ public class ExpenseDetailViewModel :
             { "UpdatedExpense", updatedExpense }
         };
 
+        _appStateService.ClearExpenseDraft();
+
         await Shell.Current.GoToAsync(
             "..",
             parameters);
@@ -145,6 +197,8 @@ public class ExpenseDetailViewModel :
 
     private async Task GoBackAsync()
     {
+        _appStateService.ClearExpenseDraft();
+
         await Shell.Current.GoToAsync("..");
     }
 
