@@ -1,304 +1,303 @@
 # Expense Tracker
 
-Мобільний застосунок для обліку особистих витрат, розроблений на C# з використанням .NET MAUI та архітектурного патерну MVVM.
+Мобільний застосунок для обліку особистих витрат на **C# / .NET MAUI** з архітектурою **MVVM**. Проєкт містить основний список витрат, редагування деталей, категорії, статистику, налаштування теми та відкриття витрати через deep link.
 
-## Опис проєкту
+## Можливості
 
-Застосунок дозволяє користувачу керувати особистими витратами: додавати нові записи, редагувати наявні витрати, переглядати детальну інформацію та видаляти записи. Для кожної витрати можна вказати суму, валюту, категорію, опис і дату.
+- Додавання витрат із сумою, категорією, описом і датою.
+- Валюти введення: UAH, USD та EUR. USD/EUR конвертуються у гривню за курсами, отриманими з API НБУ.
+- Перегляд загальної суми та історії витрат; видалення витрат.
+- Перегляд і редагування деталей уже створеної витрати.
+- Тимчасове збереження чернетки редагування під час переходів між сторінками.
+- Керування категоріями: додавання та видалення.
+- Статистика: загальна сума, кількість витрат, середня та найбільша витрата, категорія з найбільшою сумою, підсумки за категоріями.
+- Налаштування системної, світлої або темної теми з запам’ятовуванням вибору через `Preferences`.
+- Android deep link для відкриття конкретної витрати за ID.
 
-Застосунок підтримує роботу з гривнею (UAH), доларом США (USD) та євро (EUR). Для іноземних валют передбачено отримання офіційних курсів Національного банку України та конвертацію суми в гривні.
+## Технології
 
-Крім основного обліку витрат, застосунок містить засоби перегляду статистики, керування категоріями та налаштування зовнішнього вигляду. Також у проєкті передбачено механізм Deep Links для відкриття окремих елементів застосунку через посилання.
+- C#, .NET MAUI, XAML
+- MVVM (`INotifyPropertyChanged`, `ICommand`, data binding)
+- `ObservableCollection<T>` для списків, що оновлюються в UI
+- REST API НБУ та `System.Net.Http.Json`
+- .NET MAUI Shell navigation і `IQueryAttributable`
+- `Preferences` для збереження теми
 
-## Основні можливості
-
-- Додавання нової витрати.
-- Редагування наявної витрати.
-- Видалення витрати.
-- Перегляд історії витрат.
-- Перегляд детальної інформації про витрату.
-- Вибір валюти: UAH, USD або EUR.
-- Конвертація USD та EUR у гривні за курсами НБУ.
-- Відображення курсів валют та дати курсу.
-- Автоматичний підрахунок загальної суми витрат.
-- Перегляд статистики витрат.
-- Відображення розподілу витрат за категоріями.
-- Перегляд основних статистичних показників: кількості витрат, середньої та найбільшої витрати.
-- Керування категоріями витрат.
-- Налаштування теми оформлення застосунку.
-- Підтримка конфігурації Android Deep Links для переходу до деталей витрати.
-
-Примітка: дані витрат і категорій зберігаються в оперативній пам'яті, якщо в поточній реалізації не використано окремого механізму постійного збереження. Тому не слід вважати їх збереження після перезапуску гарантованим.
-
-## Використані технології
-
-- C#
-- .NET MAUI
-- XAML
-- MVVM
-- REST API
-- JSON
-- `HttpClient`
-- `ObservableCollection`
-- `ICommand`
-- API Національного банку України
-- Android Intent Filters
-- Deep Links
-- Mermaid для UML-діаграм
+Версія цільового фреймворку в проєктному файлі — .NET 10 (`net10.0-android`, а також iOS, Mac Catalyst і Windows залежно від ОС, на якій виконується збірка).
 
 ## Структура проєкту
 
-Основні компоненти застосунку згруповані за призначенням. Нижче наведено логічну структуру основних компонентів; точні назви додаткових файлів можуть залежати від поточної версії проєкту.
-
-```
-Lab1
-│
-├── Models
+```text
+Lab1/
+├── Models/
+│   ├── CategoryStatistic.cs
+│   ├── CurrencyRate.cs
 │   ├── Expense.cs
-│   └── CurrencyRate.cs
-│
-├── ViewModels
-│   └── ExpensesViewModel.cs
-│
-├── Views
-│   ├── ExpensesPage.xaml
-│   └── ExpensesPage.xaml.cs
-│
-├── Services
+│   └── ExpenseEditState.cs
+├── Services/
+│   ├── AppStateService.cs
+│   ├── CategoryService.cs
 │   ├── CurrencyConverter.cs
-│   └── CurrencyRateService.cs
-│
-├── App.xaml
-├── App.xaml.cs
-├── AppShell.xaml
-└── AppShell.xaml.cs
+│   ├── CurrencyRateService.cs
+│   ├── ExpenseStore.cs
+│   └── IAppStateService.cs
+├── View/
+│   ├── CategoriesPage.xaml(.cs)
+│   ├── ExpenseDetailPage.xaml(.cs)
+│   ├── ExpensesPage.xaml(.cs)
+│   ├── SettingsPage.xaml(.cs)
+│   └── StatisticsPage.xaml(.cs)
+├── ViewModels/
+│   ├── CategoriesViewModel.cs
+│   ├── ExpenseDetailViewModel.cs
+│   ├── ExpensesViewModel.cs
+│   ├── SettingsViewModel.cs
+│   └── StatisticsViewModel.cs
+├── Platforms/
+│   └── Android/MainActivity.cs, AndroidManifest.xml, ...
+├── App.xaml(.cs)
+├── AppShell.xaml(.cs)
+├── MauiProgram.cs
+└── Lab1.csproj
 ```
 
-## Архітектура MVVM
+## Архітектура
 
-У застосунку використовується архітектурний патерн MVVM (Model-View-ViewModel), який розділяє інтерфейс користувача, логіку роботи з даними та моделі.
+Застосунок використовує MVVM. XAML-сторінки відображають стан ViewModel через bindings і передають дії через команди. Сервіси містять логіку роботи зі списком витрат, категоріями, конвертацією валют і чернеткою редагування.
 
-\#chatgpt-mermaid-\_r_p2\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_p2\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_p2\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_p2\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_p2\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_p2\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_p2\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_p2\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_p2\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_p2\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_p2\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_p2\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_p2\_ p{margin:0;}#chatgpt-mermaid-\_r_p2\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_p2\_ .label text,#chatgpt-mermaid-\_r_p2\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ .node rect,#chatgpt-mermaid-\_r_p2\_ .node circle,#chatgpt-mermaid-\_r_p2\_ .node ellipse,#chatgpt-mermaid-\_r_p2\_ .node polygon,#chatgpt-mermaid-\_r_p2\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ .rough-node .label text,#chatgpt-mermaid-\_r_p2\_ .node .label text,#chatgpt-mermaid-\_r_p2\_ .image-shape .label,#chatgpt-mermaid-\_r_p2\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_p2\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ .rough-node .label,#chatgpt-mermaid-\_r_p2\_ .node .label,#chatgpt-mermaid-\_r_p2\_ .image-shape .label,#chatgpt-mermaid-\_r_p2\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_p2\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_p2\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_p2\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_p2\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_p2\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_p2\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_p2\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_p2\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_p2\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_p2\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_p2\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_p2\_ .icon-shape,#chatgpt-mermaid-\_r_p2\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_p2\_ .icon-shape p,#chatgpt-mermaid-\_r_p2\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_p2\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_p2\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_p2\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_p2\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_p2\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_p2\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_p2\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_p2\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_p2\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_p2\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_p2\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_p2\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_p2\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_p2\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_p2\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_p2\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ .node rect,#chatgpt-mermaid-\_r_p2\_ .node circle,#chatgpt-mermaid-\_r_p2\_ .node ellipse,#chatgpt-mermaid-\_r_p2\_ .node polygon,#chatgpt-mermaid-\_r_p2\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_p2\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_p2\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_p2\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_p2\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_p2\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Expense TrackerServicesModelsCurrencyRateServiceCurrencyConverterExpenseCurrencyRateViewXAML-сторінкиViewModelExpensesViewModelКористувачAPI Національного банкуУкраїниHTTP / JSON
-
-### Model
-
-Model відповідає за представлення даних, з якими працює застосунок.
-
-Основна модель `Expense` описує витрату та містить такі поля:
-
-- `Id` — унікальний ідентифікатор витрати.
-- `Amount` — сума витрати.
-- `Category` — категорія.
-- `Description` — опис.
-- `Date` — дата витрати.
-- `Currency` — валюта.
-
-Модель `CurrencyRate` використовується для представлення інформації про валютний курс, зокрема коду валюти, значення курсу та дати його дії.
-
-### View
-
-View відповідає за відображення даних і взаємодію з користувачем.
-
-Інтерфейс застосунку побудований за допомогою XAML. Сторінки та відповідні файли `.xaml.cs` забезпечують відображення інформації й обробку подій інтерфейсу.
-
-Користувач може переглядати витрати, вводити нові записи, змінювати їх, відкривати детальну інформацію, працювати зі статистикою та налаштуваннями.
-
-### ViewModel
-
-`ExpensesViewModel` виступає посередником між View і логікою застосунку.
-
-Він відповідає за:
-
-- надання даних для відображення;
-- зберігання списку витрат у колекції;
-- обробку команд додавання, редагування та видалення;
-- перевірку введених даних;
-- отримання курсів валют;
-- виклик конвертера;
-- обчислення загальної суми;
-- підготовку даних для статистики;
-- оновлення інтерфейсу через механізми прив'язки даних.
-
-### Services
-
-Сервіси містять логіку, яку доцільно відокремити від інтерфейсу та ViewModel.
-
-`CurrencyRateService` відповідає за отримання валютних курсів через HTTP-запит до API НБУ та обробку відповіді у форматі JSON.
-
-`CurrencyConverter` виконує перерахунок суми витрати в гривні відповідно до вибраної валюти та переданого курсу.
-
-## UML діаграма класів
-
-Діаграма відображає основні сутності та залежності між ними. Вона показує логічну модель застосунку, а не повний перелік усіх полів і методів кожного класу.
-
-\#chatgpt-mermaid-\_r_pb\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_pb\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_pb\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_pb\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_pb\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_pb\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_pb\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_pb\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_pb\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_pb\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_pb\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pb\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pb\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_pb\_ p{margin:0;}#chatgpt-mermaid-\_r_pb\_ g.classGroup text{fill:rgb(31, 78, 148);stroke:none;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:10px;}#chatgpt-mermaid-\_r_pb\_ g.classGroup text .title{font-weight:bolder;}#chatgpt-mermaid-\_r_pb\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_pb\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_pb\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .nodeLabel,#chatgpt-mermaid-\_r_pb\_ .edgeLabel{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .noteLabel .nodeLabel,#chatgpt-mermaid-\_r_pb\_ .noteLabel .edgeLabel{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .edgeLabel .label rect{fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_pb\_ .label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .labelBkg{background:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_pb\_ .edgeLabel .label span{background:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_pb\_ .classTitle{font-weight:bolder;}#chatgpt-mermaid-\_r_pb\_ .node rect,#chatgpt-mermaid-\_r_pb\_ .node circle,#chatgpt-mermaid-\_r_pb\_ .node ellipse,#chatgpt-mermaid-\_r_pb\_ .node polygon,#chatgpt-mermaid-\_r_pb\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ .divider{stroke:rgb(31, 78, 148);stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ g.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_pb\_ g.classGroup rect{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_pb\_ g.classGroup line{stroke:rgb(31, 78, 148);stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ .classLabel .box{stroke:none;stroke-width:0;fill:rgb(9, 23, 44);opacity:0.5;}#chatgpt-mermaid-\_r_pb\_ .classLabel .label{fill:rgb(31, 78, 148);font-size:10px;}#chatgpt-mermaid-\_r_pb\_ .relation{stroke:rgb(175, 175, 175);stroke-width:1;fill:none;}#chatgpt-mermaid-\_r_pb\_ .dashed-line{stroke-dasharray:3;}#chatgpt-mermaid-\_r_pb\_ .dotted-line{stroke-dasharray:1 2;}#chatgpt-mermaid-\_r_pb\_ [id$="-compositionStart"],#chatgpt-mermaid-\_r_pb\_ .composition{fill:rgb(175, 175, 175)!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-compositionEnd"],#chatgpt-mermaid-\_r_pb\_ .composition{fill:rgb(175, 175, 175)!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-dependencyStart"],#chatgpt-mermaid-\_r_pb\_ .dependency{fill:rgb(175, 175, 175)!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-dependencyEnd"],#chatgpt-mermaid-\_r_pb\_ .dependency{fill:rgb(175, 175, 175)!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-extensionStart"],#chatgpt-mermaid-\_r_pb\_ .extension{fill:transparent!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-extensionEnd"],#chatgpt-mermaid-\_r_pb\_ .extension{fill:transparent!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-aggregationStart"],#chatgpt-mermaid-\_r_pb\_ .aggregation{fill:transparent!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-aggregationEnd"],#chatgpt-mermaid-\_r_pb\_ .aggregation{fill:transparent!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-lollipopStart"],#chatgpt-mermaid-\_r_pb\_ .lollipop{fill:rgb(9, 23, 44)!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ [id$="-lollipopEnd"],#chatgpt-mermaid-\_r_pb\_ .lollipop{fill:rgb(9, 23, 44)!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_pb\_ .edgeTerminals{font-size:11px;line-height:initial;}#chatgpt-mermaid-\_r_pb\_ .classTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pb\_ .edgeLabel[data-look="neo"]{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_pb\_ .edgeLabel[data-look="neo"] p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_pb\_ .edgeLabel[data-look="neo"] rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_pb\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_pb\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_pb\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_pb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_pb\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_pb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_pb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pb\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_pb\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pb\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Expense+int Id+decimal Amount+string Category+string Description+DateTime Date+string CurrencyCurrencyRate+string Currency+decimal Rate+string DateExpensesViewModel+ObservableCollection\<Expense> Expenses+decimal TotalAmount+decimal UsdRate+decimal EurRate+string RateDate+AddExpenseCommand+DeleteExpenseCommand+LoadRatesAsync()CurrencyConverter+ConvertToUah(amount, currency, usdRate, eurRate)CurrencyRateService-HttpClient httpClient+GetRatesAsync()ExpenseDetails"Перегляд та редагування витрати"Statistics"Агреговані дані про витрати"Categories"Керування категоріями"керує витратамиконвертує сумиотримує курсистворює дані курсівпереглядає та змінюєаналізуєвикористовує категорії
-
-## UML діаграма компонентів
-
-Діаграма компонентів показує розподіл відповідальності між інтерфейсом, ViewModel, моделями та сервісами.
-
-\#chatgpt-mermaid-\_r_pk\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_pk\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_pk\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_pk\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_pk\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_pk\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_pk\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_pk\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_pk\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_pk\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pk\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pk\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_pk\_ p{margin:0;}#chatgpt-mermaid-\_r_pk\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_pk\_ .label text,#chatgpt-mermaid-\_r_pk\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ .node rect,#chatgpt-mermaid-\_r_pk\_ .node circle,#chatgpt-mermaid-\_r_pk\_ .node ellipse,#chatgpt-mermaid-\_r_pk\_ .node polygon,#chatgpt-mermaid-\_r_pk\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ .rough-node .label text,#chatgpt-mermaid-\_r_pk\_ .node .label text,#chatgpt-mermaid-\_r_pk\_ .image-shape .label,#chatgpt-mermaid-\_r_pk\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_pk\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ .rough-node .label,#chatgpt-mermaid-\_r_pk\_ .node .label,#chatgpt-mermaid-\_r_pk\_ .image-shape .label,#chatgpt-mermaid-\_r_pk\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_pk\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_pk\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pk\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pk\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_pk\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_pk\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_pk\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_pk\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_pk\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_pk\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pk\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_pk\_ .icon-shape,#chatgpt-mermaid-\_r_pk\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_pk\_ .icon-shape p,#chatgpt-mermaid-\_r_pk\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_pk\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_pk\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_pk\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_pk\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_pk\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_pk\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_pk\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_pk\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_pk\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pk\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_pk\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pk\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_pk\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_pk\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_pk\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_pk\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ .node rect,#chatgpt-mermaid-\_r_pk\_ .node circle,#chatgpt-mermaid-\_r_pk\_ .node ellipse,#chatgpt-mermaid-\_r_pk\_ .node polygon,#chatgpt-mermaid-\_r_pk\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_pk\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_pk\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_pk\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_pk\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pk\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Expense TrackerModelsServicesІнтерфейсExpenseCurrencyRateCurrencyRateServiceCurrencyConverterСторінка витратДеталі витратиСтатистикаНалаштуванняViewModelsAPI НБУHTTP / JSON
-
-## UML діаграма послідовності додавання витрати
-
-Під час додавання витрати користувач вводить суму, вибирає валюту та заповнює інші поля. ViewModel перевіряє введені дані й за потреби викликає конвертер.
-
-ExpenseCurrencyConverterExpensesViewModelСторінка витратExpenseCurrencyConverterExpensesViewModelСторінка витрат#chatgpt-mermaid-\_r_pt\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_pt\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_pt\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_pt\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_pt\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_pt\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_pt\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_pt\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_pt\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_pt\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_pt\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_pt\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_pt\_ p{margin:0;}#chatgpt-mermaid-\_r_pt\_ .actor{stroke:rgb(31, 78, 148);fill:rgb(9, 23, 44);stroke-width:1;}#chatgpt-mermaid-\_r_pt\_ rect.actor.outer-path[data-look="neo"]{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pt\_ rect.note[data-look="neo"]{stroke:rgb(58, 132, 63);fill:rgb(48, 48, 48);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pt\_ text.actor>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_pt\_ .actor-line{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ .innerArc{stroke-width:1.5;stroke-dasharray:none;}#chatgpt-mermaid-\_r_pt\_ .messageLine0{stroke-width:1.5;stroke-dasharray:none;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ .messageLine1{stroke-width:1.5;stroke-dasharray:2,2;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ [id$="-arrowhead"] path{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ .sequenceNumber{fill:#505050;}#chatgpt-mermaid-\_r_pt\_ [id$="-sequencenumber"]{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ [id$="-crosshead"] path{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_pt\_ .messageText{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_pt\_ .labelBox{stroke:rgba(255, 255, 255, 0.15);fill:rgb(0, 0, 0);filter:none;}#chatgpt-mermaid-\_r_pt\_ .labelText,#chatgpt-mermaid-\_r_pt\_ .labelText>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_pt\_ .loopText,#chatgpt-mermaid-\_r_pt\_ .loopText>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_pt\_ .sectionTitle,#chatgpt-mermaid-\_r_pt\_ .sectionTitle>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_pt\_ .loopLine{stroke-width:2px;stroke-dasharray:2,2;stroke:rgba(255, 255, 255, 0.15);fill:rgba(255, 255, 255, 0.15);}#chatgpt-mermaid-\_r_pt\_ .note{stroke:rgb(58, 132, 63);fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_pt\_ .noteText,#chatgpt-mermaid-\_r_pt\_ .noteText>tspan{fill:rgb(237, 237, 237);stroke:none;font-weight:normal;}#chatgpt-mermaid-\_r_pt\_ .activation0{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_pt\_ .activation1{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_pt\_ .activation2{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_pt\_ .actorPopupMenu{position:absolute;}#chatgpt-mermaid-\_r_pt\_ .actorPopupMenuPanel{position:absolute;fill:rgb(9, 23, 44);box-shadow:0px 8px 16px 0px rgba(0,0,0,0.2);filter:drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));}#chatgpt-mermaid-\_r_pt\_ .actor-man circle,#chatgpt-mermaid-\_r_pt\_ line{fill:rgb(9, 23, 44);stroke-width:2px;}#chatgpt-mermaid-\_r_pt\_ g rect.rect{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_pt\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_pt\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_pt\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_pt\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_pt\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pt\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_pt\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_pt\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}alt[Валюта USD або EUR][Валюта UAH]КористувачВводить дані витратиНатискає "Додати"Виклик команди додаванняПеревірка введених данихConvertToUah(amount, currency, rates)Сума в UAHВикористання введеної сумиСтворення витратиДодавання до ExpensesПерерахунок загальної сумиОновлення прив'язаних данихВідображення витратиКористувач
-
-## UML діаграма редагування витрати
-
-Редагування дає змогу змінити дані вже створеної витрати. Після збереження змін необхідно оновити відповідні обчислення та представлення даних.
-
-Діаграма некоректна або не підтримується
-
-## UML діаграма послідовності отримання курсів валют
-
-Для отримання актуальних курсів застосунок звертається до API Національного банку України. Сервіс обробляє отриману відповідь і передає необхідні дані ViewModel.
-
-API НБУCurrencyRateServiceExpensesViewModelСторінка витратAPI НБУCurrencyRateServiceExpensesViewModelСторінка витрат#chatgpt-mermaid-\_r_qf\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_qf\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_qf\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_qf\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_qf\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qf\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_qf\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_qf\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_qf\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_qf\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_qf\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_qf\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_qf\_ p{margin:0;}#chatgpt-mermaid-\_r_qf\_ .actor{stroke:rgb(31, 78, 148);fill:rgb(9, 23, 44);stroke-width:1;}#chatgpt-mermaid-\_r_qf\_ rect.actor.outer-path[data-look="neo"]{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qf\_ rect.note[data-look="neo"]{stroke:rgb(58, 132, 63);fill:rgb(48, 48, 48);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qf\_ text.actor>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_qf\_ .actor-line{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ .innerArc{stroke-width:1.5;stroke-dasharray:none;}#chatgpt-mermaid-\_r_qf\_ .messageLine0{stroke-width:1.5;stroke-dasharray:none;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ .messageLine1{stroke-width:1.5;stroke-dasharray:2,2;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ [id$="-arrowhead"] path{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ .sequenceNumber{fill:#505050;}#chatgpt-mermaid-\_r_qf\_ [id$="-sequencenumber"]{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ [id$="-crosshead"] path{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qf\_ .messageText{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_qf\_ .labelBox{stroke:rgba(255, 255, 255, 0.15);fill:rgb(0, 0, 0);filter:none;}#chatgpt-mermaid-\_r_qf\_ .labelText,#chatgpt-mermaid-\_r_qf\_ .labelText>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_qf\_ .loopText,#chatgpt-mermaid-\_r_qf\_ .loopText>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_qf\_ .sectionTitle,#chatgpt-mermaid-\_r_qf\_ .sectionTitle>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_qf\_ .loopLine{stroke-width:2px;stroke-dasharray:2,2;stroke:rgba(255, 255, 255, 0.15);fill:rgba(255, 255, 255, 0.15);}#chatgpt-mermaid-\_r_qf\_ .note{stroke:rgb(58, 132, 63);fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_qf\_ .noteText,#chatgpt-mermaid-\_r_qf\_ .noteText>tspan{fill:rgb(237, 237, 237);stroke:none;font-weight:normal;}#chatgpt-mermaid-\_r_qf\_ .activation0{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_qf\_ .activation1{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_qf\_ .activation2{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_qf\_ .actorPopupMenu{position:absolute;}#chatgpt-mermaid-\_r_qf\_ .actorPopupMenuPanel{position:absolute;fill:rgb(9, 23, 44);box-shadow:0px 8px 16px 0px rgba(0,0,0,0.2);filter:drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));}#chatgpt-mermaid-\_r_qf\_ .actor-man circle,#chatgpt-mermaid-\_r_qf\_ line{fill:rgb(9, 23, 44);stroke-width:2px;}#chatgpt-mermaid-\_r_qf\_ g rect.rect{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_qf\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_qf\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_qf\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_qf\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_qf\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qf\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_qf\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qf\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Запит на завантаження курсівGetRatesAsync()HTTP GETJSON з валютними курсамиОбробка відповідіВибір USD та EURДані курсівОновлення UsdRateОновлення EurRateОновлення RateDateОновлення прив'язаних властивостейВідображення курсів
-
-## UML діаграма процесу конвертації
-
-Конвертація залежить від вибраної валюти. Якщо витрата введена в гривнях, сума залишається незмінною. Для USD та EUR виконується множення введеної суми на відповідний курс.
-
-\#chatgpt-mermaid-\_r_qo\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_qo\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_qo\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_qo\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_qo\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_qo\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_qo\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_qo\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_qo\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_qo\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qo\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qo\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_qo\_ p{margin:0;}#chatgpt-mermaid-\_r_qo\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_qo\_ .label text,#chatgpt-mermaid-\_r_qo\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ .node rect,#chatgpt-mermaid-\_r_qo\_ .node circle,#chatgpt-mermaid-\_r_qo\_ .node ellipse,#chatgpt-mermaid-\_r_qo\_ .node polygon,#chatgpt-mermaid-\_r_qo\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ .rough-node .label text,#chatgpt-mermaid-\_r_qo\_ .node .label text,#chatgpt-mermaid-\_r_qo\_ .image-shape .label,#chatgpt-mermaid-\_r_qo\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_qo\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ .rough-node .label,#chatgpt-mermaid-\_r_qo\_ .node .label,#chatgpt-mermaid-\_r_qo\_ .image-shape .label,#chatgpt-mermaid-\_r_qo\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_qo\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_qo\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qo\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qo\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_qo\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_qo\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_qo\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_qo\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_qo\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_qo\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_qo\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_qo\_ .icon-shape,#chatgpt-mermaid-\_r_qo\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_qo\_ .icon-shape p,#chatgpt-mermaid-\_r_qo\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_qo\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_qo\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_qo\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_qo\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_qo\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_qo\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_qo\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_qo\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_qo\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qo\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_qo\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_qo\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_qo\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_qo\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_qo\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_qo\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ .node rect,#chatgpt-mermaid-\_r_qo\_ .node circle,#chatgpt-mermaid-\_r_qo\_ .node ellipse,#chatgpt-mermaid-\_r_qo\_ .node polygon,#chatgpt-mermaid-\_r_qo\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_qo\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_qo\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_qo\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_qo\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_qo\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}ПочатокВведення суми та валютиЯка валюта?UAH: сума без змінUSD: сума × курс USDEUR: сума × курс EURОтримання суми в UAHСтворення або оновленнявитратиОновлення загальної сумиЗавершенняUAHUSDEUR
-
-## UML діаграма статистики витрат
-
-Статистика формується на основі списку витрат. Вона дозволяє оцінити загальну суму, кількість записів, середню та найбільшу витрату, а також розподіл витрат за категоріями.
-
-\#chatgpt-mermaid-\_r_r1\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_r1\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_r1\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_r1\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_r1\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_r1\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_r1\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_r1\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_r1\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_r1\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_r1\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_r1\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_r1\_ p{margin:0;}#chatgpt-mermaid-\_r_r1\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_r1\_ .label text,#chatgpt-mermaid-\_r_r1\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ .node rect,#chatgpt-mermaid-\_r_r1\_ .node circle,#chatgpt-mermaid-\_r_r1\_ .node ellipse,#chatgpt-mermaid-\_r_r1\_ .node polygon,#chatgpt-mermaid-\_r_r1\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ .rough-node .label text,#chatgpt-mermaid-\_r_r1\_ .node .label text,#chatgpt-mermaid-\_r_r1\_ .image-shape .label,#chatgpt-mermaid-\_r_r1\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_r1\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ .rough-node .label,#chatgpt-mermaid-\_r_r1\_ .node .label,#chatgpt-mermaid-\_r_r1\_ .image-shape .label,#chatgpt-mermaid-\_r_r1\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_r1\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_r1\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_r1\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_r1\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_r1\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_r1\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_r1\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_r1\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_r1\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_r1\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_r1\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_r1\_ .icon-shape,#chatgpt-mermaid-\_r_r1\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_r1\_ .icon-shape p,#chatgpt-mermaid-\_r_r1\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_r1\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_r1\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_r1\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_r1\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_r1\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_r1\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_r1\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_r1\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_r1\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_r1\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_r1\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_r1\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_r1\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_r1\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_r1\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_r1\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ .node rect,#chatgpt-mermaid-\_r_r1\_ .node circle,#chatgpt-mermaid-\_r_r1\_ .node ellipse,#chatgpt-mermaid-\_r_r1\_ .node polygon,#chatgpt-mermaid-\_r_r1\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_r1\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_r1\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_r1\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_r1\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_r1\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Список витратОтримання даних для аналізуЗагальна сумаКількість витратСередня витратаНайбільша витратаГрупування за категоріямиФормування статистикиСторінка статистики
-
-Основні показники визначаються за такими принципами:
-
-- Загальна сума — сума всіх витрат.
-- Кількість витрат — кількість записів у списку.
-- Середня витрата — загальна сума, поділена на кількість витрат.
-- Найбільша витрата — найбільша сума серед наявних записів.
-- Розподіл за категоріями — групування витрат відповідно до їхніх категорій.
-
-Якщо список порожній, статистичні показники, які потребують даних, мають обробляти цей випадок без помилок.
-
-## UML діаграма Deep Links
-
-Deep Links дозволяють відкрити застосунок за спеціальним посиланням. У проєкті передбачено Android intent filter та використання ідентифікатора `ExpenseId` для визначення витрати, деталі якої потрібно відкрити.
-
-ExpenseViewModelAppShellExpense TrackerAndroid SystemExpenseViewModelAppShellExpense TrackerAndroid System#chatgpt-mermaid-\_r_ra\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_ra\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_ra\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_ra\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_ra\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_ra\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_ra\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_ra\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_ra\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_ra\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_ra\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_ra\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_ra\_ p{margin:0;}#chatgpt-mermaid-\_r_ra\_ .actor{stroke:rgb(31, 78, 148);fill:rgb(9, 23, 44);stroke-width:1;}#chatgpt-mermaid-\_r_ra\_ rect.actor.outer-path[data-look="neo"]{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_ra\_ rect.note[data-look="neo"]{stroke:rgb(58, 132, 63);fill:rgb(48, 48, 48);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_ra\_ text.actor>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_ra\_ .actor-line{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ .innerArc{stroke-width:1.5;stroke-dasharray:none;}#chatgpt-mermaid-\_r_ra\_ .messageLine0{stroke-width:1.5;stroke-dasharray:none;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ .messageLine1{stroke-width:1.5;stroke-dasharray:2,2;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ [id$="-arrowhead"] path{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ .sequenceNumber{fill:#505050;}#chatgpt-mermaid-\_r_ra\_ [id$="-sequencenumber"]{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ [id$="-crosshead"] path{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_ra\_ .messageText{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_ra\_ .labelBox{stroke:rgba(255, 255, 255, 0.15);fill:rgb(0, 0, 0);filter:none;}#chatgpt-mermaid-\_r_ra\_ .labelText,#chatgpt-mermaid-\_r_ra\_ .labelText>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_ra\_ .loopText,#chatgpt-mermaid-\_r_ra\_ .loopText>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_ra\_ .sectionTitle,#chatgpt-mermaid-\_r_ra\_ .sectionTitle>tspan{fill:rgb(237, 237, 237);stroke:none;}#chatgpt-mermaid-\_r_ra\_ .loopLine{stroke-width:2px;stroke-dasharray:2,2;stroke:rgba(255, 255, 255, 0.15);fill:rgba(255, 255, 255, 0.15);}#chatgpt-mermaid-\_r_ra\_ .note{stroke:rgb(58, 132, 63);fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_ra\_ .noteText,#chatgpt-mermaid-\_r_ra\_ .noteText>tspan{fill:rgb(237, 237, 237);stroke:none;font-weight:normal;}#chatgpt-mermaid-\_r_ra\_ .activation0{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_ra\_ .activation1{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_ra\_ .activation2{fill:rgb(48, 48, 48);stroke:hsl(0, 0%, 8.8235294118%);}#chatgpt-mermaid-\_r_ra\_ .actorPopupMenu{position:absolute;}#chatgpt-mermaid-\_r_ra\_ .actorPopupMenuPanel{position:absolute;fill:rgb(9, 23, 44);box-shadow:0px 8px 16px 0px rgba(0,0,0,0.2);filter:drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));}#chatgpt-mermaid-\_r_ra\_ .actor-man circle,#chatgpt-mermaid-\_r_ra\_ line{fill:rgb(9, 23, 44);stroke-width:2px;}#chatgpt-mermaid-\_r_ra\_ g rect.rect{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_ra\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_ra\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_ra\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_ra\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_ra\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_ra\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_ra\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_ra\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}КористувачВідкриває Deep LinkПеревіряє Intent FilterЗапускає або відкриває застосунокПередає керування навігаціїПередає ExpenseIdПошук витрати за IdДані витратиДані для сторінки деталейВідкриває деталі витратиКористувач
-
-Ця діаграма відображає передбачуваний процес переходу за Deep Link. Для повноцінної роботи потрібно, щоб застосунок не лише оголошував intent filter, а й обробляв вхідний URI, отримував `ExpenseId` та виконував відповідну навігацію. Сам факт наявності intent filter не гарантує завершеного сценарію.
-
-## UML діаграма налаштувань і категорій
-
-Керування категоріями дозволяє організувати витрати, а налаштування теми — змінювати зовнішній вигляд інтерфейсу.
-
-\#chatgpt-mermaid-\_r_rj\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_rj\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_rj\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_rj\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_rj\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_rj\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_rj\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_rj\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_rj\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_rj\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rj\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rj\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_rj\_ p{margin:0;}#chatgpt-mermaid-\_r_rj\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_rj\_ .label text,#chatgpt-mermaid-\_r_rj\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ .node rect,#chatgpt-mermaid-\_r_rj\_ .node circle,#chatgpt-mermaid-\_r_rj\_ .node ellipse,#chatgpt-mermaid-\_r_rj\_ .node polygon,#chatgpt-mermaid-\_r_rj\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ .rough-node .label text,#chatgpt-mermaid-\_r_rj\_ .node .label text,#chatgpt-mermaid-\_r_rj\_ .image-shape .label,#chatgpt-mermaid-\_r_rj\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_rj\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ .rough-node .label,#chatgpt-mermaid-\_r_rj\_ .node .label,#chatgpt-mermaid-\_r_rj\_ .image-shape .label,#chatgpt-mermaid-\_r_rj\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_rj\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_rj\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rj\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rj\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_rj\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_rj\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_rj\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_rj\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_rj\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_rj\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rj\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_rj\_ .icon-shape,#chatgpt-mermaid-\_r_rj\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_rj\_ .icon-shape p,#chatgpt-mermaid-\_r_rj\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_rj\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_rj\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_rj\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_rj\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_rj\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_rj\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_rj\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_rj\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_rj\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rj\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_rj\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rj\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_rj\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_rj\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_rj\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_rj\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ .node rect,#chatgpt-mermaid-\_r_rj\_ .node circle,#chatgpt-mermaid-\_r_rj\_ .node ellipse,#chatgpt-mermaid-\_r_rj\_ .node polygon,#chatgpt-mermaid-\_r_rj\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_rj\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_rj\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_rj\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_rj\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rj\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}КористувачНалаштуванняВибір теми оформленняКерування категоріямиЗастосування темиДодавання категоріїРедагування категоріїВидалення категоріїСписок категорійФорма витратиІнтерфейс застосунку
-
-Наявність окремих операцій редагування або видалення категорій залежить від того, які саме команди реалізовані у відповідній версії проєкту. Діаграма показує загальну організацію цього функціонального модуля.
-
-## Взаємодія компонентів
-
-Основний потік додавання та обробки витрат:
-
-\#chatgpt-mermaid-\_r_rs\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_rs\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_rs\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_rs\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_rs\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_rs\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_rs\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_rs\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_rs\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_rs\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rs\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rs\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_rs\_ p{margin:0;}#chatgpt-mermaid-\_r_rs\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_rs\_ .label text,#chatgpt-mermaid-\_r_rs\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ .node rect,#chatgpt-mermaid-\_r_rs\_ .node circle,#chatgpt-mermaid-\_r_rs\_ .node ellipse,#chatgpt-mermaid-\_r_rs\_ .node polygon,#chatgpt-mermaid-\_r_rs\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ .rough-node .label text,#chatgpt-mermaid-\_r_rs\_ .node .label text,#chatgpt-mermaid-\_r_rs\_ .image-shape .label,#chatgpt-mermaid-\_r_rs\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_rs\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ .rough-node .label,#chatgpt-mermaid-\_r_rs\_ .node .label,#chatgpt-mermaid-\_r_rs\_ .image-shape .label,#chatgpt-mermaid-\_r_rs\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_rs\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_rs\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rs\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rs\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_rs\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_rs\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_rs\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_rs\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_rs\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_rs\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_rs\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_rs\_ .icon-shape,#chatgpt-mermaid-\_r_rs\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_rs\_ .icon-shape p,#chatgpt-mermaid-\_r_rs\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_rs\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_rs\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_rs\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_rs\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_rs\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_rs\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_rs\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_rs\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_rs\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rs\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_rs\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_rs\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_rs\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_rs\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_rs\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_rs\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ .node rect,#chatgpt-mermaid-\_r_rs\_ .node circle,#chatgpt-mermaid-\_r_rs\_ .node ellipse,#chatgpt-mermaid-\_r_rs\_ .node polygon,#chatgpt-mermaid-\_r_rs\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_rs\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_rs\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_rs\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_rs\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_rs\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}КористувачІнтерфейс витратExpensesViewModelПеревірка данихCurrencyConverterExpenseСписок витратОбчислення статистикиОновлення інтерфейсу
-
-Отримання курсів валют працює окремим потоком:
-
-\#chatgpt-mermaid-\_r_s5\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_s5\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_s5\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_s5\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_s5\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_s5\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_s5\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_s5\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_s5\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_s5\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_s5\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_s5\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_s5\_ p{margin:0;}#chatgpt-mermaid-\_r_s5\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_s5\_ .label text,#chatgpt-mermaid-\_r_s5\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ .node rect,#chatgpt-mermaid-\_r_s5\_ .node circle,#chatgpt-mermaid-\_r_s5\_ .node ellipse,#chatgpt-mermaid-\_r_s5\_ .node polygon,#chatgpt-mermaid-\_r_s5\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ .rough-node .label text,#chatgpt-mermaid-\_r_s5\_ .node .label text,#chatgpt-mermaid-\_r_s5\_ .image-shape .label,#chatgpt-mermaid-\_r_s5\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_s5\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ .rough-node .label,#chatgpt-mermaid-\_r_s5\_ .node .label,#chatgpt-mermaid-\_r_s5\_ .image-shape .label,#chatgpt-mermaid-\_r_s5\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_s5\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_s5\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_s5\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_s5\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_s5\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_s5\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_s5\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_s5\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_s5\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_s5\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_s5\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_s5\_ .icon-shape,#chatgpt-mermaid-\_r_s5\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_s5\_ .icon-shape p,#chatgpt-mermaid-\_r_s5\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_s5\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_s5\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_s5\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_s5\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_s5\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_s5\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_s5\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_s5\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_s5\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_s5\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_s5\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_s5\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_s5\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_s5\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_s5\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_s5\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ .node rect,#chatgpt-mermaid-\_r_s5\_ .node circle,#chatgpt-mermaid-\_r_s5\_ .node ellipse,#chatgpt-mermaid-\_r_s5\_ .node polygon,#chatgpt-mermaid-\_r_s5\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_s5\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_s5\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_s5\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_s5\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_s5\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Сторінка застосункуExpensesViewModelCurrencyRateServiceHTTP GETAPI НБУJSON-відповідьОбробка курсівUsdRate / EurRateВідображення курсів
-
-## Логіка роботи з валютами
-
-Для конвертації використовується курс відповідної валюти до гривні.
-
-Якщо користувач вводить:
-
-```
-Сума: 100
-Валюта: USD
-Курс: 41.50 UAH
+```mermaid
+flowchart TD
+    User[Користувач] --> View[View: XAML Pages]
+    View <--> VM[ViewModels]
+    VM --> Models[Models]
+    VM --> ExpenseStore[ExpenseStore]
+    VM --> Categories[CategoryService]
+    VM --> AppState[IAppStateService]
+    VM --> Converter[CurrencyConverter]
+    VM --> RateService[CurrencyRateService]
+    RateService --> NBU[API Національного банку України]
 ```
 
-застосунок виконує розрахунок:
+## UML: діаграма класів домену та сервісів
 
+```mermaid
+classDiagram
+    class Expense {
+        +int Id
+        +decimal Amount
+        +string Category
+        +string Description
+        +DateTime Date
+        +string Currency
+    }
+    class CurrencyRate {
+        +string Currency
+        +decimal Rate
+        +string Date
+    }
+    class CategoryStatistic {
+        +string Category
+        +decimal Amount
+        +int Count
+    }
+    class ExpenseEditState {
+        +int ExpenseId
+        +string Amount
+        +string Category
+        +string Description
+        +DateTime Date
+    }
+    class ExpenseStore {
+        +ObservableCollection~Expense~ Expenses
+    }
+    class CategoryService {
+        +ObservableCollection~string~ Categories
+        +AddCategory(category)
+        +DeleteCategory(category)
+    }
+    class CurrencyConverter {
+        +ConvertToUah(amount, currency, usdRate, eurRate) decimal
+    }
+    class CurrencyRateService {
+        +GetRatesAsync() Task~List~CurrencyRate~~
+    }
+    class IAppStateService {
+        <<interface>>
+        +GetExpenseDraft() ExpenseEditState
+        +SaveExpenseDraft(state)
+        +ClearExpenseDraft()
+    }
+    class AppStateService {
+        -ExpenseEditState expenseDraft
+    }
+    AppStateService ..|> IAppStateService
+    ExpenseStore o-- Expense
+    CurrencyRateService ..> CurrencyRate
+    AppStateService ..> ExpenseEditState
 ```
-100 × 41.50 = 4150 UAH
+
+## UML: ViewModel та сторінки
+
+```mermaid
+classDiagram
+    class ExpensesPage
+    class ExpenseDetailPage
+    class CategoriesPage
+    class StatisticsPage
+    class SettingsPage
+
+    class ExpensesViewModel {
+        +Expenses
+        +TotalAmount
+        +AddExpenseCommand
+        +DeleteExpenseCommand
+        +OpenDetailsCommand
+        +OpenStatisticsCommand
+        +OpenCategoriesCommand
+        +OpenSettingsCommand
+        +LoadRatesAsync()
+    }
+    class ExpenseDetailViewModel {
+        +SaveCommand
+        +GoBackCommand
+        +ApplyQueryAttributes(query)
+    }
+    class CategoriesViewModel {
+        +AddCategoryCommand
+        +DeleteCategoryCommand
+    }
+    class StatisticsViewModel {
+        +TotalAmount
+        +ExpenseCount
+        +AverageAmount
+        +LargestExpense
+        +LargestCategory
+        +CategoryStatistics
+        +Refresh()
+    }
+    class SettingsViewModel {
+        +Themes
+        +SelectedTheme
+    }
+
+    ExpensesPage --> ExpensesViewModel
+    ExpenseDetailPage --> ExpenseDetailViewModel
+    CategoriesPage --> CategoriesViewModel
+    StatisticsPage --> StatisticsViewModel
+    SettingsPage --> SettingsViewModel
 ```
 
-Для EUR використовується аналогічний принцип:
+## UML: додавання витрати
 
-```
-100 × курс EUR = сума в UAH
-```
+```mermaid
+sequenceDiagram
+    actor User as Користувач
+    participant View as ExpensesPage
+    participant VM as ExpensesViewModel
+    participant Converter as CurrencyConverter
+    participant Store as ExpenseStore
 
-Якщо користувач вибирає UAH, конвертація не потрібна:
-
-```
-100 UAH = 100 UAH
-```
-
-Після конвертації сума може використовуватися для обчислення загальних витрат і статистичних показників. Важливо, щоб одиниці вимірювання були узгоджені: підсумовування USD, EUR та UAH без попереднього приведення до однієї валюти призвело б до некоректного результату.
-
-## Приклад роботи
-
-Користувач відкриває застосунок. Сторінка витрат завантажує доступні дані та запитує курси валют у сервісу `CurrencyRateService`.
-
-Після цього користувач створює витрату:
-
-```
-Сума: 50
-Валюта: EUR
-Категорія: Їжа
-Опис: Кафе
-Дата: 02.10.2026
+    User->>View: Вводить суму, валюту, категорію, дату
+    User->>View: Натискає «Додати витрату»
+    View->>VM: AddExpenseCommand
+    VM->>VM: Перевіряє суму та категорію
+    VM->>Converter: ConvertToUah(amount, currency, rates)
+    Converter-->>VM: Сума в UAH
+    VM->>Store: Додає Expense до ObservableCollection
+    VM->>VM: Очищає форму та оновлює TotalAmount
+    VM-->>View: Binding оновлює UI
 ```
 
-Після натискання кнопки додавання застосунок перевіряє введені значення, отримує курс EUR та конвертує суму в гривні. Створений запис додається до списку витрат, а загальна сума й статистика оновлюються.
+## UML: редагування деталей витрати
 
-Користувач може відкрити деталі витрати, змінити її опис, категорію, дату або інші доступні поля, а також видалити запис.
+```mermaid
+sequenceDiagram
+    actor User as Користувач
+    participant List as ExpensesPage
+    participant VM as ExpensesViewModel
+    participant Detail as ExpenseDetailPage
+    participant DetailVM as ExpenseDetailViewModel
+    participant State as AppStateService
+    participant Store as ExpenseStore
 
-На сторінці статистики можна переглянути основні показники та розподіл витрат за категоріями. У налаштуваннях доступні передбачені застосунком параметри оформлення й керування категоріями.
-
-## API НБУ
-
-Для отримання офіційних курсів валют використовується API Національного банку України:
-
+    User->>List: Натискає «Детальніше»
+    List->>VM: OpenDetailsCommand(expense)
+    VM->>Detail: Навігація з SelectedExpense
+    Detail->>DetailVM: ApplyQueryAttributes
+    DetailVM->>State: Отримує чернетку редагування
+    User->>Detail: Змінює поля та натискає «Зберегти»
+    DetailVM->>DetailVM: Перевіряє суму та категорію
+    DetailVM->>List: Повертає UpdatedExpense
+    List->>VM: ApplyQueryAttributes(UpdatedExpense)
+    VM->>Store: Замінює витрату з відповідним ID
+    VM-->>List: Оновлює TotalAmount та UI
 ```
-https://bank.gov.ua/NBUStatService/v1/statdirectory/exchangenew?json
+
+## UML: отримання курсів валют
+
+```mermaid
+sequenceDiagram
+    participant Page as ExpensesPage
+    participant VM as ExpensesViewModel
+    participant Service as CurrencyRateService
+    participant NBU as API НБУ
+
+    Page->>VM: OnAppearing / LoadCommand
+    VM->>Service: GetRatesAsync()
+    Service->>NBU: GET /NBUStatService/v1/statdirectory/exchangenew?json
+    NBU-->>Service: JSON з курсами валют
+    Service->>Service: Відбирає USD та EUR
+    Service-->>VM: CurrencyRate[]
+    VM->>VM: Оновлює UsdRate, EurRate, RateDate
+    VM-->>Page: Binding оновлює відображення
 ```
 
-API повертає інформацію у форматі JSON.
+## UML: обробка deep link
 
-Основні поля відповіді:
-
+```mermaid
+flowchart TD
+    Link["expensetracker://expense/{id}"] --> Android[Android Intent Filter]
+    Android --> App[App.OnAppLinkRequestReceived]
+    App --> Parse{ID — ціле число?}
+    Parse -- Ні --> Stop[Ігнорувати посилання]
+    Parse -- Так --> Route[Shell: expensedetail?ExpenseId=id]
+    Route --> Lookup[ExpenseDetailViewModel шукає витрату в ExpenseStore]
+    Lookup --> Found{Знайдено?}
+    Found -- Так --> Detail[Показати деталі витрати]
+    Found -- Ні --> Alert[Повідомлення «Витрату не знайдено»]
 ```
-cc            Код валюти
-rate          Курс валюти
-exchangedate  Дата курсу
-```
 
-Сервіс `CurrencyRateService` виконує HTTP-запит, обробляє відповідь та передає дані про потрібні валюти у ViewModel.
+На Android у `MainActivity` зареєстрована схема `expensetracker` та host `expense`. Приклад посилання: `expensetracker://expense/1`. Воно відкриває деталі витрати з ID `1`, якщо така витрата є в поточному `ExpenseStore`.
+
+## Правила роботи з валютами
+
+`CurrencyRateService` запитує курси з API НБУ та відбирає USD і EUR. `CurrencyConverter` переводить введену суму у гривні: для UAH сума не змінюється, для USD та EUR множиться на відповідний курс. `ExpensesViewModel` зберігає у `Expense.Amount` уже конвертовану суму в UAH; поле `Expense.Currency` містить код вибраної валюти. У поточній реалізації це означає, що `Amount` — сума для підсумків у гривнях, а `Currency` — валюта, у якій користувач вводив суму.
+
+Якщо запит курсів завершується помилкою, ViewModel встановлює курси в `0` і показує «Помилка завантаження». Тому додавання витрат у USD/EUR без успішно завантажених курсів може дати некоректну суму; перед використанням цих валют варто переконатися, що курси завантажені.
 
 ## Запуск проєкту
 
-Для запуску застосунку необхідні:
+1. Встановіть .NET 10 SDK та відповідне навантаження .NET MAUI для вашої платформи.
+2. Відкрийте `Lab1.slnx` у сумісній версії Visual Studio або відкрийте `Lab1/Lab1.csproj`.
+3. Виберіть цільову платформу та запустіть застосунок на емуляторі або пристрої.
+4. Для завантаження курсів валют потрібне підключення до інтернету.
 
-- встановлений .NET SDK, сумісний із цільовою версією .NET MAUI;
-- Visual Studio з компонентами розробки .NET MAUI або відповідне середовище .NET;
-- Android SDK та емулятор Android або фізичний пристрій для запуску Android-версії.
+Android deep link для тестування: `expensetracker://expense/1`. Для успішного відкриття витрата з ID `1` має вже бути в пам’яті застосунку.
 
-Послідовність запуску:
+## Поточні обмеження, виявлені в коді
 
-1. Відкрити solution або проєкт `Lab1` у середовищі розробки.
-2. Переконатися, що встановлено необхідні компоненти .NET MAUI.
-3. Відновити NuGet-залежності.
-4. Вибрати потрібну цільову платформу.
-5. Запустити застосунок на емуляторі або фізичному пристрої.
+- `ExpenseStore` зберігає витрати лише в `ObservableCollection` у пам’яті процесу. База даних або файлове постійне сховище не реалізовані, тому після повного перезапуску застосунку список витрат не відновлюється.
+- `CategoryService` початково створює фіксований список категорій у пам’яті; додані категорії не зберігаються після перезапуску.
+- `AppStateService` зберігає лише одну чернетку редагування в оперативній пам’яті.
+- Deep link налаштовано через intent filter в Android `MainActivity`; аналогічне налаштування universal links / URL schemes для iOS, Mac Catalyst або Windows у перевірених файлах не виявлено.
+- Deep link шукає витрату лише в поточному `ExpenseStore`, отже не може відкрити запис після холодного запуску, якщо список ще порожній.
+- У `ExpenseDetailViewModel.SaveAsync()` значення Amount розбирається через `decimal.TryParse` без явно заданої культури. Поведінка для десяткового роздільника може залежати від регіональних налаштувань пристрою.
+- Не знайдено окремого тестового проєкту в архіві.
 
-Для отримання курсів валют необхідне підключення до інтернету.
+## API
 
-## Обмеження поточної реалізації
+Курси отримуються з публічного сервісу НБУ: [NBUStatService](https://bank.gov.ua/NBUStatService/v1/statdirectory/exchangenew?json).
 
-- Якщо для витрат і категорій використовується лише оперативна пам'ять, дані не гарантовано зберігаються після завершення роботи застосунку.
-- Отримання курсів валют залежить від доступності API НБУ та інтернет-з'єднання.
-- Для роботи Deep Links потрібно перевірити повний цикл: відкриття посилання, отримання URI, визначення `ExpenseId`, пошук витрати та навігацію на сторінку деталей.
-- Після редагування або видалення витрати необхідно оновлювати загальну суму та статистику, щоб вони відповідали актуальному списку.
-- Для порожнього списку витрат і відсутніх валютних курсів потрібно передбачити коректну обробку граничних випадків.
+## Ліцензія
+
+У наданому архіві окремий файл ліцензії не виявлено.
