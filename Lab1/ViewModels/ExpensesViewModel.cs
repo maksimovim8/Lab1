@@ -14,6 +14,7 @@ public class ExpensesViewModel :
     private readonly CurrencyRateService _rateService;
     private readonly CurrencyConverter _currencyConverter;
     private readonly CategoryService _categoryService;
+    private readonly ExpenseStore _expenseStore;
 
     private decimal _amount;
     private string _category = string.Empty;
@@ -148,14 +149,16 @@ public class ExpensesViewModel :
     public ICommand OpenCategoriesCommand { get; }
     public ICommand OpenSettingsCommand { get; }
 
-    public ExpensesViewModel(CategoryService categoryService)
+    public ExpensesViewModel(
+    CategoryService categoryService,
+    ExpenseStore expenseStore)
     {
+        _expenseStore = expenseStore;
+        Expenses = _expenseStore.Expenses;
         _categoryService = categoryService;
 
         _rateService = new CurrencyRateService();
         _currencyConverter = new CurrencyConverter();
-
-        Expenses = new ObservableCollection<Expense>();
 
         Currencies = new ObservableCollection<string>
         {
@@ -164,7 +167,7 @@ public class ExpensesViewModel :
             "EUR"
         };
 
-        LoadCommand = 
+        LoadCommand =
             new Command(
                 async () => await LoadRatesAsync());
         AddExpenseCommand = new Command(AddExpense);
@@ -204,7 +207,9 @@ public class ExpensesViewModel :
 
         var expense = new Expense
         {
-            Id = Expenses.Count + 1,
+            Id = Expenses.Count == 0
+                ? 1
+                : Expenses.Max(expense => expense.Id) + 1,
 
             // У витраті зберігаємо вже суму в гривнях
             Amount = amountInUah,

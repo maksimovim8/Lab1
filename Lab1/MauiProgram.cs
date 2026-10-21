@@ -17,6 +17,7 @@ namespace Lab1
                 });
             builder.Services.AddSingleton<CategoryService>();
             builder.Services.AddSingleton<IAppStateService, AppStateService>();
+            builder.Services.AddSingleton<ExpenseStore>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

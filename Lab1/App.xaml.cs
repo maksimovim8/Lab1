@@ -33,6 +33,28 @@ namespace Lab1
             return window;
         }
 
+        protected override void OnAppLinkRequestReceived(Uri uri)
+        {
+            base.OnAppLinkRequestReceived(uri);
+
+            if (uri.Scheme != "expensetracker" ||
+                uri.Host != "expense")
+            {
+                return;
+            }
+
+            var expenseIdText = uri.AbsolutePath.Trim('/');
+
+            if (!int.TryParse(expenseIdText, out var expenseId))
+                return;
+
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Shell.Current.GoToAsync(
+                    $"expensedetail?ExpenseId={expenseId}");
+            });
+        }
+
         private void OnWindowStopped(object? sender, EventArgs e)
         {
             Debug.WriteLine(

@@ -13,7 +13,7 @@ public class ExpenseDetailViewModel :
 {
     private readonly CategoryService _categoryService;
     private readonly IAppStateService _appStateService;
-
+    private readonly ExpenseStore _expenseStore;
     private Expense? _expense;
     private bool _isRestoringState;
 
@@ -86,10 +86,12 @@ public class ExpenseDetailViewModel :
 
     public ExpenseDetailViewModel(
         CategoryService categoryService,
-        IAppStateService appStateService)
+        IAppStateService appStateService,
+        ExpenseStore expenseStore)
     {
         _categoryService = categoryService;
         _appStateService = appStateService;
+        _expenseStore = expenseStore;
 
         SaveCommand = new Command(
             async () => await SaveAsync());
@@ -98,18 +100,43 @@ public class ExpenseDetailViewModel :
             async () => await GoBackAsync());
     }
 
+
     public void ApplyQueryAttributes(
         IDictionary<string, object> query)
     {
-        if (!query.TryGetValue(
-                "SelectedExpense",
-                out var value))
+        // Звичайне відкриття витрати зі списку
+        if (query.TryGetValue("SelectedExpense", out var value)
+            && value is Expense selectedExpense)
+        {
+            _expense = selectedExpense;
+        }
+        // Відкриття через deep link за ID
+        else if (query.TryGetValue("ExpenseId", out var idValue)
+            && int.TryParse(idValue?.ToString(), out var expenseId))
+        {
+            _expense = _expenseStore.Expenses.FirstOrDefault(
+                expense => expense.Id == expenseId);
+        }
+        else
+        {
             return;
+        }
 
-        if (value is not Expense expense)
+        // Якщо витрату з таким ID не знайдено
+        if (_expense == null)
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Shell.Current.DisplayAlert(
+                    "Витрату не знайдено",
+                    "Перевірте посилання або створіть витрату спочатку.",
+                    "OK");
+
+                await Shell.Current.GoToAsync("..");
+            });
+
             return;
-
-        _expense = expense;
+        }
 
         var draft = _appStateService.GetExpenseDraft();
 
@@ -118,7 +145,7 @@ public class ExpenseDetailViewModel :
         try
         {
             if (draft != null &&
-                draft.ExpenseId == expense.Id)
+                draft.ExpenseId == _expense.Id)
             {
                 Amount = draft.Amount;
                 Category = draft.Category;
@@ -127,10 +154,10 @@ public class ExpenseDetailViewModel :
             }
             else
             {
-                Amount = expense.Amount.ToString("F2");
-                Category = expense.Category;
-                Description = expense.Description;
-                Date = expense.Date;
+                Amount = _expense.Amount.ToString("F2");
+                Category = _expense.Category;
+                Description = _expense.Description;
+                Date = _expense.Date;
             }
         }
         finally
@@ -140,6 +167,7 @@ public class ExpenseDetailViewModel :
 
         SaveDraftIfNeeded();
     }
+
 
     private void SaveDraftIfNeeded()
     {

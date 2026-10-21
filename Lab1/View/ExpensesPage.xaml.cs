@@ -9,11 +9,15 @@ public partial class ExpensesPage : ContentPage
 {
     private readonly ExpensesViewModel _viewModel;
 
-    public ExpensesPage(CategoryService categoryService)
+    public ExpensesPage(
+    CategoryService categoryService,
+    ExpenseStore expenseStore)
     {
         InitializeComponent();
 
-        _viewModel = new ExpensesViewModel(categoryService);
+        _viewModel = new ExpensesViewModel(
+        categoryService,
+        expenseStore);
 
         BindingContext = _viewModel;
     }
